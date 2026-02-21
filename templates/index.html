@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Host - 小组活动主持人</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- ═══ VIEW: Join ═══ -->
+  <div id="view-join" class="view active">
+    <div class="join-container">
+      <h1>AI Host</h1>
+      <p class="subtitle">小组活动 AI 主持人</p>
+      <div class="join-card">
+        <input type="text" id="input-nickname" placeholder="你的昵称" maxlength="12" autocomplete="off">
+        <div class="join-actions">
+          <button id="btn-create" class="btn btn-primary">创建房间</button>
+          <div class="join-divider">或</div>
+          <div class="join-code-row">
+            <input type="text" id="input-room-code" placeholder="房间号" maxlength="6" autocomplete="off">
+            <button id="btn-join" class="btn btn-secondary">加入</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW: Lobby ═══ -->
+  <div id="view-lobby" class="view">
+    <div class="lobby-container">
+      <h2>等待中...</h2>
+      <p class="room-code-display">房间号: <span id="lobby-room-code"></span></p>
+      <div id="lobby-participants" class="participants-grid"></div>
+      <div id="lobby-actions">
+        <button id="btn-start" class="btn btn-primary" style="display:none">开始活动</button>
+        <p id="lobby-hint" class="hint">等待房主开始...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW: Session ═══ -->
+  <div id="view-session" class="view">
+    <!-- Top bar -->
+    <header class="session-header">
+      <div class="stage-info">
+        <span id="stage-name" class="stage-badge">S0</span>
+        <div class="timer-bar">
+          <div id="timer-fill" class="timer-fill"></div>
+        </div>
+        <span id="timer-display" class="timer-display">--:--</span>
+      </div>
+      <span class="room-code-small" id="session-room-code"></span>
+    </header>
+
+    <div class="session-body">
+      <!-- Left: Participants -->
+      <aside class="panel-left">
+        <h3>参与者</h3>
+        <div id="session-participants"></div>
+        <div id="turn-indicator" class="turn-indicator" style="display:none">
+          <span>轮到:</span> <strong id="turn-name"></strong>
+        </div>
+        <div id="groups-display" style="display:none">
+          <h4>分组</h4>
+          <div id="groups-list"></div>
+        </div>
+      </aside>
+
+      <!-- Center: Messages + Cards + Forms -->
+      <main class="panel-center">
+        <!-- Task card banner -->
+        <div id="card-banner" class="card-banner" style="display:none">
+          <div class="card-title" id="card-title"></div>
+          <div class="card-goal" id="card-goal"></div>
+          <ol class="card-steps" id="card-steps"></ol>
+        </div>
+
+        <!-- Onboarding form -->
+        <div id="onboarding-form" class="form-section" style="display:none">
+          <h3>快速了解你</h3>
+          <label>能量等级 (1-5)
+            <input type="range" id="ob-energy" min="1" max="5" value="3">
+            <span id="ob-energy-val">3</span>
+          </label>
+          <label>你是否慢热？
+            <select id="ob-shy"><option value="yes">是</option><option value="no">不是</option><option value="sometimes">看情况</option></select>
+          </label>
+          <label>今天更想要什么？
+            <select id="ob-prefer"><option value="listen">倾听</option><option value="advice">建议</option><option value="together">一起做事</option><option value="relax">轻松一下</option></select>
+          </label>
+          <label>你想要什么样的支持？
+            <select id="ob-support"><option value="emotional">情感支持</option><option value="practical">实用建议</option><option value="company">陪伴</option><option value="none">不需要</option></select>
+          </label>
+          <label>你主要说什么语言？
+            <select id="ob-lang"><option value="zh">中文</option><option value="en">English</option><option value="both">都可以</option></select>
+          </label>
+          <label>愿意本周做个小行动吗？
+            <select id="ob-action"><option value="yes">愿意试试</option><option value="maybe">看看再说</option><option value="no">这周不行</option></select>
+          </label>
+          <button id="btn-submit-onboarding" class="btn btn-primary">提交</button>
+        </div>
+
+        <!-- Plan form (S3) -->
+        <div id="plan-form" class="form-section" style="display:none">
+          <h3>我的 2 小时微冒险计划</h3>
+          <label>时间段 <input type="text" id="plan-time" placeholder="例：周六下午2-4点"></label>
+          <label>地点 <input type="text" id="plan-place" placeholder="例：附近公园 / 家里"></label>
+          <label>预算 <input type="text" id="plan-budget" placeholder="例：0元 / 30元以内"></label>
+          <label>同伴角色 <input type="text" id="plan-companion" placeholder="例：一起走 / 各做各的但在一起"></label>
+          <label>邀请话术 <input type="text" id="plan-invite" placeholder="例：周六下午想不想一起去公园走走？"></label>
+          <button id="btn-submit-plan" class="btn btn-primary">提交计划</button>
+        </div>
+
+        <!-- Help request form (S4) -->
+        <div id="help-form" class="form-section" style="display:none">
+          <h3>我的一个小请求</h3>
+          <p class="hint">≤30分钟能推进一点的事</p>
+          <textarea id="help-request-text" rows="3" placeholder="我卡在__，想要__"></textarea>
+          <button id="btn-submit-help" class="btn btn-primary">提交请求</button>
+        </div>
+
+        <!-- Help response form (S4 respond) -->
+        <div id="help-respond-form" class="form-section" style="display:none">
+          <h3>回应请求</h3>
+          <div id="help-respond-target"></div>
+          <textarea id="help-response-text" rows="3" placeholder="下一步：___，5分钟最小动作：___"></textarea>
+          <button id="btn-submit-help-response" class="btn btn-primary">提交回应</button>
+        </div>
+
+        <!-- Vote panel (S5) -->
+        <div id="vote-panel" class="form-section" style="display:none">
+          <h3>选择你想加入的计划</h3>
+          <div id="vote-cards"></div>
+        </div>
+
+        <!-- Feedback form (S6) -->
+        <div id="feedback-form" class="form-section" style="display:none">
+          <h3>快速反馈</h3>
+          <label>尴尬程度 (1=完全不尬, 5=很尬)
+            <input type="range" id="fb-awkward" min="1" max="5" value="3">
+            <span id="fb-awkward-val">3</span>
+          </label>
+          <label>愿意再来一次吗？ (1=不愿意, 5=非常愿意)
+            <input type="range" id="fb-return" min="1" max="5" value="3">
+            <span id="fb-return-val">3</span>
+          </label>
+          <label>最有用的环节
+            <select id="fb-best"><option value="checkin">签到</option><option value="micro">微任务</option><option value="main">主任务</option><option value="help">互助</option><option value="commit">承诺</option></select>
+          </label>
+          <button id="btn-submit-feedback" class="btn btn-primary">提交反馈</button>
+        </div>
+
+        <!-- Message feed -->
+        <div id="message-feed" class="message-feed"></div>
+      </main>
+
+      <!-- Right: Output wall -->
+      <aside class="panel-right">
+        <h3>产出墙</h3>
+        <div id="output-wall"></div>
+        <div id="commitments-wall" style="display:none">
+          <h4>本周承诺</h4>
+          <div id="commitments-list"></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Bottom input -->
+    <footer class="session-footer">
+      <div class="input-row">
+        <input type="text" id="chat-input" placeholder="发言..." autocomplete="off">
+        <button id="btn-send" class="btn btn-primary">发送</button>
+        <button id="btn-pass" class="btn btn-secondary">Pass</button>
+        <button id="btn-next-turn" class="btn btn-secondary" style="display:none">下一位</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ═══ VIEW: Ended ═══ -->
+  <div id="view-ended" class="view">
+    <div class="ended-container">
+      <h2>活动结束</h2>
+      <p>感谢参与！希望你带走了一些具体的东西。</p>
+      <div id="ended-commitments"></div>
+      <button id="btn-new-session" class="btn btn-primary">回到首页</button>
+    </div>
+  </div>
+
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
