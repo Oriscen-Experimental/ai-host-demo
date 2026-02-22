@@ -25,10 +25,10 @@ class SessionTimer:
             self._task = None
 
     async def _tick_loop(self):
-        """Run tick every 2 seconds."""
+        """Run tick every 10 seconds."""
         while self._running:
             try:
                 await self.tick_callback(self.room_code)
             except Exception as e:
                 print(f"[Timer] tick error for {self.room_code}: {e}")
-            await asyncio.sleep(2)
+            await asyncio.sleep(10)

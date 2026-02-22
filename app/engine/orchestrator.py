@@ -42,8 +42,12 @@ class Orchestrator:
         # Check if all submitted
         connected = session.get_connected_participants()
         if all(p.onboarding for p in connected):
+            # AI智能选择任务卡
+            from app.services.task_selector import select_tasks_for_session
+            session.selected_cards = await select_tasks_for_session(session)
+
             await self._ai_speak(room_code, session,
-                "好的，大家都准备好了！让我们开始吧。",
+                "好的，我根据大家的状态选好了今天的活动环节，让我们开始吧！",
                 SpeakPriority.URGENT, force=True)
             await asyncio.sleep(1.5)
             await self._enter_stage(room_code, session, Stage.S1_CHECKIN)
@@ -116,14 +120,22 @@ class Orchestrator:
             await self._enter_stage(room_code, session, Stage.ENDED)
 
     async def tick(self, room_code: str, session: Session):
-        """Called every 2 seconds by timer."""
+        """Called every 10 seconds by timer."""
         if session.stage in (Stage.WAITING, Stage.ENDED):
             return
 
         remaining = session.timer_remaining()
         await self.broadcast(room_code, {"type": "timer_update", "remaining": remaining})
 
-        # Silence detection
+        # 智能干预：检查是否有新消息，决定是否介入
+        if self._has_new_messages(session) and session.stage not in (
+            Stage.ONBOARDING, Stage.S3_MAIN_FILL, Stage.ENDED
+        ):
+            should_speak, response_text = await self._llm_decide_intervention(session)
+            if should_speak and response_text:
+                await self._ai_speak(room_code, session, response_text, SpeakPriority.NORMAL)
+
+        # Silence detection (fallback)
         if detect_silence(session) and session.stage not in (
             Stage.ONBOARDING, Stage.S3_MAIN_FILL, Stage.ENDED
         ):
@@ -135,6 +147,41 @@ class Orchestrator:
         # Timer expired — advance stage
         if remaining <= 0 and session.timer_end > 0:
             await self._on_timer_expired(room_code, session)
+
+    def _has_new_messages(self, session: Session) -> bool:
+        """检查最近10秒是否有新用户消息"""
+        if not session.messages:
+            return False
+        # 找最近的用户消息
+        for msg in reversed(session.messages):
+            if msg.type == "user":
+                return (time.time() - msg.timestamp) < 10
+        return False
+
+    async def _llm_decide_intervention(self, session: Session) -> tuple[bool, str]:
+        """调用LLM判断是否需要介入，返回(是否介入, 介入内容)"""
+        context = build_context_prompt(session.to_client_state())
+        prompt = f"""根据以下对话上下文，判断AI主持人是否应该说话。
+
+规则：
+- 如果对话正常进行中，大家在积极交流，回复 NO_INTERVENTION
+- 如果需要介入（鼓励安静的人、总结讨论、推进进度、打断跑题），直接给出要说的话
+- 回复简短，1-2句话
+
+当前状态：
+{context}"""
+        try:
+            response = await chat(
+                HOST_SYSTEM_PROMPT,
+                [{"role": "user", "content": prompt}],
+                max_tokens=128,
+            )
+            if not response or "NO_INTERVENTION" in response.upper():
+                return False, ""
+            return True, response.strip()
+        except Exception as e:
+            print(f"[LLM] Intervention decision error: {e}")
+            return False, ""
 
     # ─── Stage transitions ───────────────────────────────────
 
@@ -206,7 +253,8 @@ class Orchestrator:
             SpeakPriority.URGENT, force=True)
 
     async def _run_s1(self, room_code: str, session: Session):
-        card = TASK_CARDS[DEFAULT_SESSION_CARDS["opening"]]
+        card_id = session.selected_cards.get("opening", "CARD_10")
+        card = TASK_CARDS[card_id]
         session.current_card = card
         pids = [p.id for p in session.get_connected_participants()]
         session.turn_order = pids
@@ -231,7 +279,8 @@ class Orchestrator:
         await self._broadcast_turn(room_code, session)
 
     async def _run_s2(self, room_code: str, session: Session):
-        card = TASK_CARDS[DEFAULT_SESSION_CARDS["micro"]]
+        card_id = session.selected_cards.get("micro", "CARD_17")
+        card = TASK_CARDS[card_id]
         session.current_card = card
         pids = [p.id for p in session.get_connected_participants()]
         session.groups = make_pairs(pids)
@@ -255,7 +304,8 @@ class Orchestrator:
             SpeakPriority.URGENT, force=True)
 
     async def _run_s3_fill(self, room_code: str, session: Session):
-        card = TASK_CARDS[DEFAULT_SESSION_CARDS["main"]]
+        card_id = session.selected_cards.get("main", "CARD_08")
+        card = TASK_CARDS[card_id]
         session.current_card = card
         session.outputs = {}
 
@@ -301,7 +351,8 @@ class Orchestrator:
         await self._broadcast_turn(room_code, session)
 
     async def _run_s4(self, room_code: str, session: Session):
-        card = TASK_CARDS[DEFAULT_SESSION_CARDS["help"]]
+        card_id = session.selected_cards.get("help", "CARD_18")
+        card = TASK_CARDS[card_id]
         session.current_card = card
         session.help_requests = {}
         session.help_responses = {}
@@ -335,7 +386,8 @@ class Orchestrator:
             SpeakPriority.URGENT, force=True)
 
     async def _run_s5(self, room_code: str, session: Session):
-        card = TASK_CARDS[DEFAULT_SESSION_CARDS["commit"]]
+        card_id = session.selected_cards.get("commit", "CARD_05")
+        card = TASK_CARDS[card_id]
         session.current_card = card
         session.votes = {}
 

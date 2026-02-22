@@ -140,6 +140,7 @@ class Session:
         self.last_user_message_at: float = 0
         self.last_ai_speak_at: float = 0
         self.sub_stage_data: dict = {}
+        self.selected_cards: dict[str, str] = {}  # AI选择的任务卡 {"opening": "CARD_XX", ...}
 
     def add_participant(self, pid: str, nickname: str) -> Participant:
         is_host = len(self.participants) == 0

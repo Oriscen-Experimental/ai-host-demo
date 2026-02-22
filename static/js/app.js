@@ -3,6 +3,7 @@ import { initOnboarding } from './onboarding.js';
 import { showCard, hideCard, initPlanForm, initHelpForm, initHelpResponseForm, showVoteCards } from './cards.js';
 import { initFeedback } from './feedback.js';
 import { renderParticipants, renderGroups, addMessage, updateTimer, updateTurn, addOutputCard, renderCommitments } from './session.js';
+import { initVoice, handleVoiceTranscription } from './voice.js';
 
 // ─── State ───
 let myId = null;
@@ -80,6 +81,7 @@ initPlanForm();
 initHelpForm();
 initHelpResponseForm();
 initFeedback();
+initVoice();
 
 // ─── WebSocket message handler ───
 function handleMessage(data) {
@@ -137,6 +139,10 @@ function handleMessage(data) {
 
     case 'user_message':
       addMessage('user', data.message.text, data.message.speaker_name);
+      break;
+
+    case 'voice_transcription':
+      handleVoiceTranscription(data);
       break;
 
     case 'timer_update':

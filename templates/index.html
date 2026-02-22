@@ -79,6 +79,44 @@
         <!-- Onboarding form -->
         <div id="onboarding-form" class="form-section" style="display:none">
           <h3>快速了解你</h3>
+          <label>你的年龄段
+            <select id="ob-age">
+              <option value="18-24">18-24岁</option>
+              <option value="25-30">25-30岁</option>
+              <option value="31-40">31-40岁</option>
+              <option value="41+">41岁以上</option>
+              <option value="prefer_not">不想说</option>
+            </select>
+          </label>
+          <label>性别
+            <select id="ob-gender">
+              <option value="female">女</option>
+              <option value="male">男</option>
+              <option value="other">其他</option>
+              <option value="prefer_not">不想说</option>
+            </select>
+          </label>
+          <label>今天的社交目标
+            <select id="ob-goal">
+              <option value="meet_new">认识新朋友</option>
+              <option value="deepen">加深现有关系</option>
+              <option value="share">分享自己</option>
+              <option value="learn">学习他人经验</option>
+              <option value="relax">放松聊天</option>
+            </select>
+          </label>
+          <label>主要兴趣领域
+            <select id="ob-interest">
+              <option value="reading">阅读</option>
+              <option value="travel">旅行</option>
+              <option value="food">美食</option>
+              <option value="fitness">健身</option>
+              <option value="tech">科技</option>
+              <option value="art">艺术/音乐</option>
+              <option value="outdoor">户外</option>
+              <option value="other">其他</option>
+            </select>
+          </label>
           <label>能量等级 (1-5)
             <input type="range" id="ob-energy" min="1" max="5" value="3">
             <span id="ob-energy-val">3</span>
@@ -97,6 +135,9 @@
           </label>
           <label>愿意本周做个小行动吗？
             <select id="ob-action"><option value="yes">愿意试试</option><option value="maybe">看看再说</option><option value="no">这周不行</option></select>
+          </label>
+          <label>一句话介绍现在的你（可选）
+            <input type="text" id="ob-intro" placeholder="例：最近在转行，有点迷茫" maxlength="50">
           </label>
           <button id="btn-submit-onboarding" class="btn btn-primary">提交</button>
         </div>
@@ -170,10 +211,12 @@
     <footer class="session-footer">
       <div class="input-row">
         <input type="text" id="chat-input" placeholder="发言..." autocomplete="off">
+        <button id="btn-voice" class="btn btn-secondary btn-voice">按住说话</button>
         <button id="btn-send" class="btn btn-primary">发送</button>
         <button id="btn-pass" class="btn btn-secondary">Pass</button>
         <button id="btn-next-turn" class="btn btn-secondary" style="display:none">下一位</button>
       </div>
+      <div id="voice-status" class="voice-status" style="display:none">录音中...</div>
     </footer>
   </div>
 

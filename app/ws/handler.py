@@ -89,6 +89,12 @@ class ConnectionManager:
             pid = self.ws_to_pid.get(websocket, "")
             if pid:
                 await self.orchestrator.on_pass_turn(room_code, session, pid)
+        elif msg_type == "voice_message":
+            pid = self.ws_to_pid.get(websocket, "")
+            audio_data = data.get("audio", "")
+            mime_type = data.get("mimeType", "audio/webm")
+            if pid and audio_data:
+                await self._handle_voice_message(room_code, session, pid, audio_data, mime_type)
 
     async def _handle_join(self, websocket: WebSocket, room_code: str, session: Session, data: dict):
         nickname = data.get("nickname", "").strip()
@@ -139,6 +145,24 @@ class ConnectionManager:
         timer.start()
 
         await self.orchestrator.start_session(room_code, session)
+
+    async def _handle_voice_message(self, room_code: str, session: Session, pid: str, audio_data: str, mime_type: str):
+        """处理语音消息：转文字并作为聊天消息发送"""
+        from app.services.stt import transcribe_audio
+
+        # 语音转文字
+        text = await transcribe_audio(audio_data, mime_type)
+
+        if text:
+            # 作为带[语音]标记的消息发送
+            await self.orchestrator.on_message(room_code, session, pid, f"[语音] {text}")
+        else:
+            # 转录失败，通知用户
+            await self.broadcast(room_code, {
+                "type": "voice_transcription",
+                "success": False,
+                "error": "语音识别失败，请重试",
+            })
 
     async def _tick_callback(self, room_code: str):
         from app.main import sessions

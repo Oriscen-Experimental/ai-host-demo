@@ -114,7 +114,7 @@ def build_context_prompt(session_state: dict) -> str:
             current_name = participants.get(current_pid, {}).get("nickname", "?")
             parts.append(f"当前轮到: {current_name}")
 
-    recent = messages[-5:] if messages else []
+    recent = messages[-20:] if messages else []
     if recent:
         parts.append("最近对话:")
         for m in recent:
