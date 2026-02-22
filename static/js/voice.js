@@ -11,14 +11,14 @@ export function initVoice() {
 
   if (!btn) return;
 
-  // 按下开始录音
+  // Press to start recording
   btn.addEventListener('mousedown', startRecording);
   btn.addEventListener('touchstart', (e) => {
     e.preventDefault();
     startRecording();
   });
 
-  // 松开停止录音
+  // Release to stop recording
   btn.addEventListener('mouseup', stopRecording);
   btn.addEventListener('mouseleave', stopRecording);
   btn.addEventListener('touchend', (e) => {
@@ -30,10 +30,10 @@ export function initVoice() {
     if (isRecording) return;
 
     try {
-      // 请求麦克风权限
+      // Request microphone permission
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      // 选择支持的 MIME 类型
+      // Choose supported MIME type
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : 'audio/webm';
@@ -52,7 +52,7 @@ export function initVoice() {
         audioChunks = [];
         await sendAudio(audioBlob, mimeType);
 
-        // 停止所有音频轨道
+        // Stop all audio tracks
         if (stream) {
           stream.getTracks().forEach(track => track.stop());
           stream = null;
@@ -62,14 +62,14 @@ export function initVoice() {
       mediaRecorder.start();
       isRecording = true;
 
-      // 更新UI
+      // Update UI
       btn.classList.add('recording');
-      btn.textContent = '录音中...';
+      btn.textContent = 'Recording...';
       if (status) status.style.display = 'block';
 
     } catch (error) {
-      console.error('麦克风访问失败:', error);
-      alert('需要允许麦克风权限才能使用语音功能');
+      console.error('Microphone access failed:', error);
+      alert('Microphone permission required for voice function');
     }
   }
 
@@ -79,29 +79,29 @@ export function initVoice() {
     mediaRecorder.stop();
     isRecording = false;
 
-    // 恢复UI
+    // Restore UI
     btn.classList.remove('recording');
-    btn.textContent = '按住说话';
+    btn.textContent = 'Hold to speak';
     if (status) status.style.display = 'none';
   }
 }
 
 async function sendAudio(blob, mimeType) {
-  // 转换为 base64
+  // Convert to base64
   const reader = new FileReader();
   reader.onloadend = () => {
-    const base64Audio = reader.result; // 包含 data URL 前缀
+    const base64Audio = reader.result; // Includes data URL prefix
     send({
       type: 'voice_message',
       audio: base64Audio,
-      mimeType: mimeType.split(';')[0], // 只取主类型
+      mimeType: mimeType.split(';')[0], // Only take main type
     });
   };
   reader.readAsDataURL(blob);
 }
 
 export function handleVoiceTranscription(data) {
-  // 可以在这里处理语音转录的回调
-  // 目前转录结果会作为普通消息显示
+  // Handle voice transcription callback here
+  // Currently transcription result is displayed as regular message
   console.log('[Voice] Transcription received:', data);
 }

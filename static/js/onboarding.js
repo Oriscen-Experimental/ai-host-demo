@@ -8,13 +8,13 @@ export function initOnboarding() {
 
   document.getElementById('btn-submit-onboarding').addEventListener('click', () => {
     const data = {
-      // 新增字段
+      // New fields
       age: document.getElementById('ob-age').value,
       gender: document.getElementById('ob-gender').value,
       goal: document.getElementById('ob-goal').value,
       interest: document.getElementById('ob-interest').value,
       intro: document.getElementById('ob-intro')?.value || '',
-      // 原有字段
+      // Original fields
       energy: parseInt(energy.value),
       shy: document.getElementById('ob-shy').value,
       prefer: document.getElementById('ob-prefer').value,

@@ -42,12 +42,12 @@ class Orchestrator:
         # Check if all submitted
         connected = session.get_connected_participants()
         if all(p.onboarding for p in connected):
-            # AI智能选择任务卡
+            # AI intelligent task card selection
             from app.services.task_selector import select_tasks_for_session
             session.selected_cards = await select_tasks_for_session(session)
 
             await self._ai_speak(room_code, session,
-                "好的，我根据大家的状态选好了今天的活动环节，让我们开始吧！",
+                "Okay, I've selected today's activity sessions based on everyone's status. Let's begin!",
                 SpeakPriority.URGENT, force=True)
             await asyncio.sleep(1.5)
             await self._enter_stage(room_code, session, Stage.S1_CHECKIN)
@@ -70,7 +70,7 @@ class Orchestrator:
             connected = session.get_connected_participants()
             if all(pid in session.outputs for pid in [pp.id for pp in connected]):
                 await self._ai_speak(room_code, session,
-                    "所有人都填好了！现在进入三人组互审改稿环节。",
+                    "Everyone has filled in their plans! Now entering the trio peer review stage.",
                     SpeakPriority.URGENT, force=True)
                 await asyncio.sleep(1)
                 await self._enter_stage(room_code, session, Stage.S3_MAIN_REVIEW)
@@ -91,7 +91,7 @@ class Orchestrator:
         connected = session.get_connected_participants()
         if all(pid in session.help_responses for pid in [pp.id for pp in connected]):
             await self._ai_speak(room_code, session,
-                "所有人都给出了回应！互助环节完成。",
+                "Everyone has responded! Mutual help stage complete.",
                 SpeakPriority.URGENT, force=True)
             await asyncio.sleep(1)
             await self._enter_stage(room_code, session, Stage.S5_COMMIT)
@@ -127,7 +127,7 @@ class Orchestrator:
         remaining = session.timer_remaining()
         await self.broadcast(room_code, {"type": "timer_update", "remaining": remaining})
 
-        # 智能干预：检查是否有新消息，决定是否介入
+        # Intelligent intervention: check for new messages, decide whether to intervene
         if self._has_new_messages(session) and session.stage not in (
             Stage.ONBOARDING, Stage.S3_MAIN_FILL, Stage.ENDED
         ):
@@ -140,7 +140,7 @@ class Orchestrator:
             Stage.ONBOARDING, Stage.S3_MAIN_FILL, Stage.ENDED
         ):
             card = session.current_card
-            fallback_text = card.fallback if card else "大家可以随时发言，也可以 pass。"
+            fallback_text = card.fallback if card else "Feel free to speak up anytime, or you can pass."
             if can_ai_speak(session, SpeakPriority.URGENT):
                 await self._ai_speak(room_code, session, fallback_text, SpeakPriority.URGENT)
 
@@ -149,26 +149,26 @@ class Orchestrator:
             await self._on_timer_expired(room_code, session)
 
     def _has_new_messages(self, session: Session) -> bool:
-        """检查最近10秒是否有新用户消息"""
+        """Check if there are new user messages in the last 10 seconds"""
         if not session.messages:
             return False
-        # 找最近的用户消息
+        # Find the most recent user message
         for msg in reversed(session.messages):
             if msg.type == "user":
                 return (time.time() - msg.timestamp) < 10
         return False
 
     async def _llm_decide_intervention(self, session: Session) -> tuple[bool, str]:
-        """调用LLM判断是否需要介入，返回(是否介入, 介入内容)"""
+        """Call LLM to decide whether to intervene, returns (should_intervene, intervention_text)"""
         context = build_context_prompt(session.to_client_state())
-        prompt = f"""根据以下对话上下文，判断AI主持人是否应该说话。
+        prompt = f"""Based on the following conversation context, decide if the AI host should speak.
 
-规则：
-- 如果对话正常进行中，大家在积极交流，回复 NO_INTERVENTION
-- 如果需要介入（鼓励安静的人、总结讨论、推进进度、打断跑题），直接给出要说的话
-- 回复简短，1-2句话
+Rules:
+- If conversation is progressing normally and everyone is actively engaging, reply NO_INTERVENTION
+- If intervention is needed (encourage quiet people, summarize discussion, advance progress, redirect off-topic), provide what to say
+- Keep it brief, 1-2 sentences
 
-当前状态：
+Current state:
 {context}"""
         try:
             response = await chat(
@@ -239,7 +239,7 @@ class Orchestrator:
         next_stage = next_stage_map.get(stage)
         if next_stage:
             await self._ai_speak(room_code, session,
-                "时间到！我们进入下一个环节。",
+                "Time's up! Let's move to the next stage.",
                 SpeakPriority.URGENT, force=True)
             await asyncio.sleep(1)
             await self._enter_stage(room_code, session, next_stage)
@@ -249,7 +249,7 @@ class Orchestrator:
     async def _run_onboarding(self, room_code: str, session: Session):
         await self.broadcast(room_code, {"type": "show_onboarding"})
         await self._ai_speak(room_code, session,
-            "欢迎大家！请先花 1 分钟填写快速问卷，帮助我了解大家的状态。",
+            "Welcome everyone! Please take 1 minute to fill out the quick survey to help me understand everyone's state.",
             SpeakPriority.URGENT, force=True)
 
     async def _run_s1(self, room_code: str, session: Session):
@@ -266,14 +266,14 @@ class Orchestrator:
         })
 
         opening = (
-            "欢迎大家。三条规则：随时可以 pass；不深挖隐私；不推销不攻击。\n"
-            "今天我们会做 1 个主任务 + 2 个微任务，保证不尬聊且有产出。\n\n"
-            f"现在快速轮一圈，每人 20 秒。说两件事：\n"
-            f"1) 能量 1–5\n2) 你今天更想要：倾听 / 建议 / 一起做事 / 轻松一下\n\n"
+            "Welcome everyone. Three rules: you can pass anytime; no digging into privacy; no selling or attacking.\n"
+            "Today we'll do 1 main task + 2 micro tasks, guaranteed no awkward chat and with concrete outputs.\n\n"
+            f"Let's do a quick round, 20 seconds each. Share two things:\n"
+            f"1) Energy level 1-5\n2) What you want today: listen / advice / do things together / relax\n\n"
         )
         first = session.participants.get(pids[0])
         if first:
-            opening += f"先从 {first.nickname} 开始！"
+            opening += f"Let's start with {first.nickname}!"
 
         await self._ai_speak(room_code, session, opening, SpeakPriority.URGENT, force=True)
         await self._broadcast_turn(room_code, session)
@@ -297,10 +297,10 @@ class Orchestrator:
 
         group_text = self._format_groups(session, "pairs")
         await self._ai_speak(room_code, session,
-            f"现在两两一组练习复述。\n{group_text}\n\n"
-            "每人 60 秒回答：'你理想的 2 小时小生活是什么？'\n"
-            "对方用 20 秒复述你在乎的点，你只纠正 1 点。\n"
-            "可以只说关键词，也可以用中文。开始吧！",
+            f"Now pair up to practice paraphrasing.\n{group_text}\n\n"
+            "Each person has 60 seconds to answer: 'What's your ideal 2-hour mini-life?'\n"
+            "Your partner paraphrases the key points in 20 seconds, you correct only 1 point.\n"
+            "Keywords only is fine. Let's go!",
             SpeakPriority.URGENT, force=True)
 
     async def _run_s3_fill(self, room_code: str, session: Session):
@@ -316,10 +316,10 @@ class Orchestrator:
         await self.broadcast(room_code, {"type": "show_plan_form"})
 
         await self._ai_speak(room_code, session,
-            "接下来是今天的主任务：每个人产出一条「2 小时微冒险计划」。\n"
-            "格式固定 5 项：时间 / 地点 / 预算 / 同伴角色 / 邀请话术。\n"
-            "重点：要小到离谱，一周内能发生。\n"
-            "大家先安静填写，4 分钟后我们三人一组互相改稿。",
+            "Next is today's main task: each person creates a '2-Hour Micro Adventure Plan'.\n"
+            "Fixed format with 5 items: time / location / budget / companion role / invitation script.\n"
+            "Key point: make it ridiculously small, something that can happen within a week.\n"
+            "Everyone fill it out quietly, in 4 minutes we'll do trio peer review.",
             SpeakPriority.URGENT, force=True)
 
     async def _run_s3_review(self, room_code: str, session: Session):
@@ -336,17 +336,17 @@ class Orchestrator:
 
         group_text = self._format_groups(session, "trios")
         await self._ai_speak(room_code, session,
-            f"好的，现在三人一组互审改稿。\n{group_text}\n\n"
-            "每人 90 秒读出计划，组员只做两件事：\n"
-            "1) 把计划缩小（降低门槛）\n"
-            "2) 把邀请话术改得不尬\n\n",
+            f"Okay, now trio peer review.\n{group_text}\n\n"
+            "Each person has 90 seconds to read their plan, group members do two things:\n"
+            "1) Make the plan smaller (lower the barrier)\n"
+            "2) Make the invitation script less awkward\n\n",
             SpeakPriority.URGENT, force=True)
 
         first = session.get_current_turn_participant()
         if first:
             await asyncio.sleep(1)
             await self._ai_speak(room_code, session,
-                f"先从 {first.nickname} 开始，请读出你的计划！",
+                f"Let's start with {first.nickname}, please read your plan!",
                 SpeakPriority.URGENT, force=True)
         await self._broadcast_turn(room_code, session)
 
@@ -365,8 +365,8 @@ class Orchestrator:
         await self.broadcast(room_code, {"type": "show_help_form"})
 
         await self._ai_speak(room_code, session,
-            "每人写一个「小请求」，必须小到 30 分钟以内能推进一点。\n"
-            "不会写就用模板：'我卡在__，想要__'。",
+            "Each person write a 'small request', must be small enough to make progress in 30 minutes or less.\n"
+            "Don't know how? Use template: 'I'm stuck on __, I want __'.",
             SpeakPriority.URGENT, force=True)
 
     async def _start_help_respond(self, room_code: str, session: Session):
@@ -381,8 +381,8 @@ class Orchestrator:
         })
 
         await self._ai_speak(room_code, session,
-            "所有请求收到！我已经给每人分配了一个要回应的人。\n"
-            "请给对方一条可执行回应：下一步是什么，5 分钟能做什么。",
+            "All requests received! I've assigned each person someone to respond to.\n"
+            "Please give an actionable response: what's the next step, what can be done in 5 minutes.",
             SpeakPriority.URGENT, force=True)
 
     async def _run_s5(self, room_code: str, session: Session):
@@ -401,9 +401,9 @@ class Orchestrator:
         })
 
         await self._ai_speak(room_code, session,
-            "最后一步：把今晚变成下周会发生的事。\n"
-            "你可以点选一张别人的计划：「我愿意加入」，哪怕只加入 60 分钟。\n"
-            "我会生成承诺公告。",
+            "Final step: turn tonight into something that will happen next week.\n"
+            "You can click on someone else's plan: 'I want to join', even if just for 60 minutes.\n"
+            "I'll generate the commitment announcement.",
             SpeakPriority.URGENT, force=True)
 
     async def _generate_commitments(self, room_code: str, session: Session):
@@ -432,13 +432,13 @@ class Orchestrator:
         })
 
         if commitments:
-            summary = "本周承诺公告：\n"
+            summary = "This week's commitment announcement:\n"
             for c in commitments:
-                summary += f"• {' + '.join(c['members'])} 一起执行 {c['plan_owner']} 的计划\n"
+                summary += f"• {' + '.join(c['members'])} executing {c['plan_owner']}'s plan together\n"
             await self._ai_speak(room_code, session, summary, SpeakPriority.URGENT, force=True)
         else:
             await self._ai_speak(room_code, session,
-                "没关系，即使没有配对，每个人的计划本身就是一个承诺。",
+                "That's okay, even without pairing up, each person's plan is a commitment in itself.",
                 SpeakPriority.URGENT, force=True)
 
         await asyncio.sleep(2)
@@ -453,15 +453,15 @@ class Orchestrator:
         session.turn_index = 0
 
         await self._ai_speak(room_code, session,
-            "每人一句：'我今天从谁那里拿走了什么（具体一点）'。\n"
-            "然后请填写 20 秒的反馈问卷。",
+            "One sentence each: 'What did I take away from whom today (be specific)'.\n"
+            "Then please fill out the 20-second feedback survey.",
             SpeakPriority.URGENT, force=True)
         await self._broadcast_turn(room_code, session)
 
     async def _run_ended(self, room_code: str, session: Session):
         await self._ai_speak(room_code, session,
-            "感谢大家参与！今天的 session 结束了。\n"
-            "希望你们带走了一些具体的东西——一个计划、一个承诺、或一个新朋友。下次见！",
+            "Thank you all for participating! Today's session has ended.\n"
+            "Hope you took away something concrete — a plan, a commitment, or a new friend. See you next time!",
             SpeakPriority.URGENT, force=True)
 
     # ─── Helpers ─────────────────────────────────────────────
@@ -472,7 +472,7 @@ class Orchestrator:
                         force: bool = False):
         if not force and not can_ai_speak(session, priority, category):
             return
-        msg = Message(type="ai", text=text, speaker_name="AI 主持人")
+        msg = Message(type="ai", text=text, speaker_name="AI Host")
         session.add_message(msg)
         await self.broadcast(room_code, {"type": "ai_message", "message": msg.to_dict()})
 
@@ -486,7 +486,7 @@ class Orchestrator:
             response = await chat(
                 HOST_SYSTEM_PROMPT,
                 [
-                    {"role": "user", "content": f"当前状态:\n{context}\n\n{user_prompt}"},
+                    {"role": "user", "content": f"Current state:\n{context}\n\n{user_prompt}"},
                 ],
                 max_tokens=256,
             )
@@ -511,7 +511,7 @@ class Orchestrator:
             current = session.get_current_turn_participant()
             if current:
                 await self._ai_speak(room_code, session,
-                    f"下一位：{current.nickname}！",
+                    f"Next: {current.nickname}!",
                     SpeakPriority.NORMAL, SpeakCategory.TURN_PROMPT)
             await self._broadcast_turn(room_code, session)
         else:
@@ -524,15 +524,15 @@ class Orchestrator:
             next_stage = next_stage_map.get(session.stage)
             if next_stage:
                 await self._ai_speak(room_code, session,
-                    "好的，这一轮结束了！",
+                    "Okay, this round is done!",
                     SpeakPriority.URGENT, force=True)
                 await asyncio.sleep(1)
                 await self._enter_stage(room_code, session, next_stage)
 
     def _format_groups(self, session: Session, mode: str) -> str:
         lines = []
-        label = "组" if mode == "trios" else "组"
+        label = "Group"
         for i, group in enumerate(session.groups):
             names = [session.participants[pid].nickname for pid in group if pid in session.participants]
-            lines.append(f"  {label}{i+1}: {' + '.join(names)}")
+            lines.append(f"  {label} {i+1}: {' + '.join(names)}")
         return "\n".join(lines)

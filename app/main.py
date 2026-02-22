@@ -9,7 +9,7 @@ import random
 from app.ws.handler import manager
 from app.models import Session
 
-app = FastAPI(title="AI Host - 小组活动 AI 主持人")
+app = FastAPI(title="AI Host - Group Activity AI Moderator")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
@@ -41,7 +41,7 @@ async def create_room():
 async def get_room(code: str):
     session = sessions.get(code)
     if not session:
-        return JSONResponse(status_code=404, content={"error": "房间不存在"})
+        return JSONResponse(status_code=404, content={"error": "Room does not exist"})
     return session.to_client_state()
 
 
@@ -54,7 +54,7 @@ async def health():
 async def websocket_endpoint(websocket: WebSocket, room_code: str):
     session = sessions.get(room_code)
     if not session:
-        await websocket.close(code=4004, reason="房间不存在")
+        await websocket.close(code=4004, reason="Room does not exist")
         return
 
     await manager.connect(websocket, room_code)

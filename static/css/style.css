@@ -276,7 +276,7 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
   white-space: pre-wrap;
 }
 .msg.ai::before {
-  content: "AI 主持人";
+  content: "AI Host";
   display: block;
   font-size: 0.75rem;
   color: var(--primary);

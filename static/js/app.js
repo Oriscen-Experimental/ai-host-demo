@@ -20,7 +20,7 @@ function showView(id) {
 // ─── Join View ───
 document.getElementById('btn-create').addEventListener('click', async () => {
   const nickname = document.getElementById('input-nickname').value.trim();
-  if (!nickname) return alert('请输入昵称');
+  if (!nickname) return alert('Please enter a nickname');
 
   const res = await fetch('/api/rooms', { method: 'POST' });
   const { code } = await res.json();
@@ -30,8 +30,8 @@ document.getElementById('btn-create').addEventListener('click', async () => {
 document.getElementById('btn-join').addEventListener('click', () => {
   const nickname = document.getElementById('input-nickname').value.trim();
   const code = document.getElementById('input-room-code').value.trim().toUpperCase();
-  if (!nickname) return alert('请输入昵称');
-  if (!code) return alert('请输入房间号');
+  if (!nickname) return alert('Please enter a nickname');
+  if (!code) return alert('Please enter a room code');
   connectAndJoin(code, nickname);
 });
 
@@ -189,7 +189,7 @@ function handleMessage(data) {
       break;
 
     case 'help_response_update':
-      addOutputCard(data.sender_name + ' (回应)', data.data);
+      addOutputCard(data.sender_name + ' (response)', data.data);
       break;
 
     case 'vote_update':
@@ -221,10 +221,10 @@ function showLobby(state) {
 
   if (isHost) {
     document.getElementById('btn-start').style.display = 'inline-block';
-    document.getElementById('lobby-hint').textContent = `${Object.keys(state.participants).length} 人已加入 — 点击开始`;
+    document.getElementById('lobby-hint').textContent = `${Object.keys(state.participants).length} people joined — click to start`;
   } else {
     document.getElementById('btn-start').style.display = 'none';
-    document.getElementById('lobby-hint').textContent = `${Object.keys(state.participants).length} 人已加入 — 等待房主开始...`;
+    document.getElementById('lobby-hint').textContent = `${Object.keys(state.participants).length} people joined — waiting for host to start...`;
   }
 }
 
@@ -236,11 +236,11 @@ function handleStageChange(state) {
     showView('view-ended');
     if (state.commitments && state.commitments.length) {
       const el = document.getElementById('ended-commitments');
-      el.innerHTML = '<h3>本周承诺</h3>';
+      el.innerHTML = '<h3>This Week\'s Commitments</h3>';
       state.commitments.forEach(c => {
         const div = document.createElement('div');
         div.className = 'commitment-card';
-        div.textContent = `${c.members.join(' + ')} — 一起执行 ${c.plan_owner} 的计划`;
+        div.textContent = `${c.members.join(' + ')} — executing ${c.plan_owner}'s plan together`;
         el.appendChild(div);
       });
     }
@@ -294,7 +294,7 @@ function handleHelpAssignments(data) {
   if (targetId && data.requests[targetId]) {
     const targetName = currentState?.participants?.[targetId]?.nickname || targetId;
     document.getElementById('help-respond-target').innerHTML =
-      `<p><strong>${targetName}</strong> 的请求：</p><p>${data.requests[targetId]}</p>`;
+      `<p><strong>${targetName}</strong>'s request:</p><p>${data.requests[targetId]}</p>`;
     document.getElementById('help-respond-form').style.display = 'flex';
   }
 }

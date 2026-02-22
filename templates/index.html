@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Host - 小组活动主持人</title>
+  <title>AI Host - Group Activity Moderator</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -11,15 +11,15 @@
   <div id="view-join" class="view active">
     <div class="join-container">
       <h1>AI Host</h1>
-      <p class="subtitle">小组活动 AI 主持人</p>
+      <p class="subtitle">AI Group Activity Moderator</p>
       <div class="join-card">
-        <input type="text" id="input-nickname" placeholder="你的昵称" maxlength="12" autocomplete="off">
+        <input type="text" id="input-nickname" placeholder="Your nickname" maxlength="12" autocomplete="off">
         <div class="join-actions">
-          <button id="btn-create" class="btn btn-primary">创建房间</button>
-          <div class="join-divider">或</div>
+          <button id="btn-create" class="btn btn-primary">Create Room</button>
+          <div class="join-divider">or</div>
           <div class="join-code-row">
-            <input type="text" id="input-room-code" placeholder="房间号" maxlength="6" autocomplete="off">
-            <button id="btn-join" class="btn btn-secondary">加入</button>
+            <input type="text" id="input-room-code" placeholder="Room code" maxlength="6" autocomplete="off">
+            <button id="btn-join" class="btn btn-secondary">Join</button>
           </div>
         </div>
       </div>
@@ -29,12 +29,12 @@
   <!-- ═══ VIEW: Lobby ═══ -->
   <div id="view-lobby" class="view">
     <div class="lobby-container">
-      <h2>等待中...</h2>
-      <p class="room-code-display">房间号: <span id="lobby-room-code"></span></p>
+      <h2>Waiting...</h2>
+      <p class="room-code-display">Room Code: <span id="lobby-room-code"></span></p>
       <div id="lobby-participants" class="participants-grid"></div>
       <div id="lobby-actions">
-        <button id="btn-start" class="btn btn-primary" style="display:none">开始活动</button>
-        <p id="lobby-hint" class="hint">等待房主开始...</p>
+        <button id="btn-start" class="btn btn-primary" style="display:none">Start Activity</button>
+        <p id="lobby-hint" class="hint">Waiting for host to start...</p>
       </div>
     </div>
   </div>
@@ -56,13 +56,13 @@
     <div class="session-body">
       <!-- Left: Participants -->
       <aside class="panel-left">
-        <h3>参与者</h3>
+        <h3>Participants</h3>
         <div id="session-participants"></div>
         <div id="turn-indicator" class="turn-indicator" style="display:none">
-          <span>轮到:</span> <strong id="turn-name"></strong>
+          <span>Turn:</span> <strong id="turn-name"></strong>
         </div>
         <div id="groups-display" style="display:none">
-          <h4>分组</h4>
+          <h4>Groups</h4>
           <div id="groups-list"></div>
         </div>
       </aside>
@@ -78,118 +78,118 @@
 
         <!-- Onboarding form -->
         <div id="onboarding-form" class="form-section" style="display:none">
-          <h3>快速了解你</h3>
-          <label>你的年龄段
+          <h3>Quick Intro</h3>
+          <label>Your Age Range
             <select id="ob-age">
-              <option value="18-24">18-24岁</option>
-              <option value="25-30">25-30岁</option>
-              <option value="31-40">31-40岁</option>
-              <option value="41+">41岁以上</option>
-              <option value="prefer_not">不想说</option>
+              <option value="18-24">18-24</option>
+              <option value="25-30">25-30</option>
+              <option value="31-40">31-40</option>
+              <option value="41+">41+</option>
+              <option value="prefer_not">Prefer not to say</option>
             </select>
           </label>
-          <label>性别
+          <label>Gender
             <select id="ob-gender">
-              <option value="female">女</option>
-              <option value="male">男</option>
-              <option value="other">其他</option>
-              <option value="prefer_not">不想说</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+              <option value="prefer_not">Prefer not to say</option>
             </select>
           </label>
-          <label>今天的社交目标
+          <label>Today's Social Goal
             <select id="ob-goal">
-              <option value="meet_new">认识新朋友</option>
-              <option value="deepen">加深现有关系</option>
-              <option value="share">分享自己</option>
-              <option value="learn">学习他人经验</option>
-              <option value="relax">放松聊天</option>
+              <option value="meet_new">Meet new friends</option>
+              <option value="deepen">Deepen existing relationships</option>
+              <option value="share">Share about myself</option>
+              <option value="learn">Learn from others</option>
+              <option value="relax">Casual chat</option>
             </select>
           </label>
-          <label>主要兴趣领域
+          <label>Main Interest Area
             <select id="ob-interest">
-              <option value="reading">阅读</option>
-              <option value="travel">旅行</option>
-              <option value="food">美食</option>
-              <option value="fitness">健身</option>
-              <option value="tech">科技</option>
-              <option value="art">艺术/音乐</option>
-              <option value="outdoor">户外</option>
-              <option value="other">其他</option>
+              <option value="reading">Reading</option>
+              <option value="travel">Travel</option>
+              <option value="food">Food</option>
+              <option value="fitness">Fitness</option>
+              <option value="tech">Technology</option>
+              <option value="art">Art/Music</option>
+              <option value="outdoor">Outdoor</option>
+              <option value="other">Other</option>
             </select>
           </label>
-          <label>能量等级 (1-5)
+          <label>Energy Level (1-5)
             <input type="range" id="ob-energy" min="1" max="5" value="3">
             <span id="ob-energy-val">3</span>
           </label>
-          <label>你是否慢热？
-            <select id="ob-shy"><option value="yes">是</option><option value="no">不是</option><option value="sometimes">看情况</option></select>
+          <label>Are you slow to warm up?
+            <select id="ob-shy"><option value="yes">Yes</option><option value="no">No</option><option value="sometimes">Sometimes</option></select>
           </label>
-          <label>今天更想要什么？
-            <select id="ob-prefer"><option value="listen">倾听</option><option value="advice">建议</option><option value="together">一起做事</option><option value="relax">轻松一下</option></select>
+          <label>What do you want today?
+            <select id="ob-prefer"><option value="listen">Listen</option><option value="advice">Advice</option><option value="together">Do things together</option><option value="relax">Relax</option></select>
           </label>
-          <label>你想要什么样的支持？
-            <select id="ob-support"><option value="emotional">情感支持</option><option value="practical">实用建议</option><option value="company">陪伴</option><option value="none">不需要</option></select>
+          <label>What kind of support do you want?
+            <select id="ob-support"><option value="emotional">Emotional support</option><option value="practical">Practical advice</option><option value="company">Companionship</option><option value="none">None needed</option></select>
           </label>
-          <label>你主要说什么语言？
-            <select id="ob-lang"><option value="zh">中文</option><option value="en">English</option><option value="both">都可以</option></select>
+          <label>What language do you mainly speak?
+            <select id="ob-lang"><option value="zh">Chinese</option><option value="en">English</option><option value="both">Both</option></select>
           </label>
-          <label>愿意本周做个小行动吗？
-            <select id="ob-action"><option value="yes">愿意试试</option><option value="maybe">看看再说</option><option value="no">这周不行</option></select>
+          <label>Willing to take a small action this week?
+            <select id="ob-action"><option value="yes">Willing to try</option><option value="maybe">Let me think</option><option value="no">Not this week</option></select>
           </label>
-          <label>一句话介绍现在的你（可选）
-            <input type="text" id="ob-intro" placeholder="例：最近在转行，有点迷茫" maxlength="50">
+          <label>Introduce yourself in one sentence (optional)
+            <input type="text" id="ob-intro" placeholder="E.g.: Recently changing careers, feeling a bit lost" maxlength="50">
           </label>
-          <button id="btn-submit-onboarding" class="btn btn-primary">提交</button>
+          <button id="btn-submit-onboarding" class="btn btn-primary">Submit</button>
         </div>
 
         <!-- Plan form (S3) -->
         <div id="plan-form" class="form-section" style="display:none">
-          <h3>我的 2 小时微冒险计划</h3>
-          <label>时间段 <input type="text" id="plan-time" placeholder="例：周六下午2-4点"></label>
-          <label>地点 <input type="text" id="plan-place" placeholder="例：附近公园 / 家里"></label>
-          <label>预算 <input type="text" id="plan-budget" placeholder="例：0元 / 30元以内"></label>
-          <label>同伴角色 <input type="text" id="plan-companion" placeholder="例：一起走 / 各做各的但在一起"></label>
-          <label>邀请话术 <input type="text" id="plan-invite" placeholder="例：周六下午想不想一起去公园走走？"></label>
-          <button id="btn-submit-plan" class="btn btn-primary">提交计划</button>
+          <h3>My 2-Hour Micro Adventure Plan</h3>
+          <label>Time <input type="text" id="plan-time" placeholder="E.g.: Saturday 2-4pm"></label>
+          <label>Location <input type="text" id="plan-place" placeholder="E.g.: Nearby park / Home"></label>
+          <label>Budget <input type="text" id="plan-budget" placeholder="E.g.: Free / Under $10"></label>
+          <label>Companion Role <input type="text" id="plan-companion" placeholder="E.g.: Together / Each doing our own"></label>
+          <label>Invitation Script <input type="text" id="plan-invite" placeholder="E.g.: Want to go for a walk Saturday afternoon?"></label>
+          <button id="btn-submit-plan" class="btn btn-primary">Submit Plan</button>
         </div>
 
         <!-- Help request form (S4) -->
         <div id="help-form" class="form-section" style="display:none">
-          <h3>我的一个小请求</h3>
-          <p class="hint">≤30分钟能推进一点的事</p>
-          <textarea id="help-request-text" rows="3" placeholder="我卡在__，想要__"></textarea>
-          <button id="btn-submit-help" class="btn btn-primary">提交请求</button>
+          <h3>My Small Request</h3>
+          <p class="hint">Something that can progress in ≤30 minutes</p>
+          <textarea id="help-request-text" rows="3" placeholder="I'm stuck with __, I want __"></textarea>
+          <button id="btn-submit-help" class="btn btn-primary">Submit Request</button>
         </div>
 
         <!-- Help response form (S4 respond) -->
         <div id="help-respond-form" class="form-section" style="display:none">
-          <h3>回应请求</h3>
+          <h3>Respond to Request</h3>
           <div id="help-respond-target"></div>
-          <textarea id="help-response-text" rows="3" placeholder="下一步：___，5分钟最小动作：___"></textarea>
-          <button id="btn-submit-help-response" class="btn btn-primary">提交回应</button>
+          <textarea id="help-response-text" rows="3" placeholder="Next step: ___, 5-min minimum action: ___"></textarea>
+          <button id="btn-submit-help-response" class="btn btn-primary">Submit Response</button>
         </div>
 
         <!-- Vote panel (S5) -->
         <div id="vote-panel" class="form-section" style="display:none">
-          <h3>选择你想加入的计划</h3>
+          <h3>Choose a plan to join</h3>
           <div id="vote-cards"></div>
         </div>
 
         <!-- Feedback form (S6) -->
         <div id="feedback-form" class="form-section" style="display:none">
-          <h3>快速反馈</h3>
-          <label>尴尬程度 (1=完全不尬, 5=很尬)
+          <h3>Quick Feedback</h3>
+          <label>Awkwardness Level (1=Not awkward, 5=Very awkward)
             <input type="range" id="fb-awkward" min="1" max="5" value="3">
             <span id="fb-awkward-val">3</span>
           </label>
-          <label>愿意再来一次吗？ (1=不愿意, 5=非常愿意)
+          <label>Willing to do this again? (1=Not willing, 5=Very willing)
             <input type="range" id="fb-return" min="1" max="5" value="3">
             <span id="fb-return-val">3</span>
           </label>
-          <label>最有用的环节
-            <select id="fb-best"><option value="checkin">签到</option><option value="micro">微任务</option><option value="main">主任务</option><option value="help">互助</option><option value="commit">承诺</option></select>
+          <label>Most useful stage
+            <select id="fb-best"><option value="checkin">Check-in</option><option value="micro">Micro task</option><option value="main">Main task</option><option value="help">Mutual help</option><option value="commit">Commitment</option></select>
           </label>
-          <button id="btn-submit-feedback" class="btn btn-primary">提交反馈</button>
+          <button id="btn-submit-feedback" class="btn btn-primary">Submit Feedback</button>
         </div>
 
         <!-- Message feed -->
@@ -198,10 +198,10 @@
 
       <!-- Right: Output wall -->
       <aside class="panel-right">
-        <h3>产出墙</h3>
+        <h3>Output Wall</h3>
         <div id="output-wall"></div>
         <div id="commitments-wall" style="display:none">
-          <h4>本周承诺</h4>
+          <h4>This Week's Commitments</h4>
           <div id="commitments-list"></div>
         </div>
       </aside>
@@ -210,23 +210,23 @@
     <!-- Bottom input -->
     <footer class="session-footer">
       <div class="input-row">
-        <input type="text" id="chat-input" placeholder="发言..." autocomplete="off">
-        <button id="btn-voice" class="btn btn-secondary btn-voice">按住说话</button>
-        <button id="btn-send" class="btn btn-primary">发送</button>
+        <input type="text" id="chat-input" placeholder="Say something..." autocomplete="off">
+        <button id="btn-voice" class="btn btn-secondary btn-voice">Hold to speak</button>
+        <button id="btn-send" class="btn btn-primary">Send</button>
         <button id="btn-pass" class="btn btn-secondary">Pass</button>
-        <button id="btn-next-turn" class="btn btn-secondary" style="display:none">下一位</button>
+        <button id="btn-next-turn" class="btn btn-secondary" style="display:none">Next</button>
       </div>
-      <div id="voice-status" class="voice-status" style="display:none">录音中...</div>
+      <div id="voice-status" class="voice-status" style="display:none">Recording...</div>
     </footer>
   </div>
 
   <!-- ═══ VIEW: Ended ═══ -->
   <div id="view-ended" class="view">
     <div class="ended-container">
-      <h2>活动结束</h2>
-      <p>感谢参与！希望你带走了一些具体的东西。</p>
+      <h2>Activity Ended</h2>
+      <p>Thank you for participating! Hope you took away something concrete.</p>
       <div id="ended-commitments"></div>
-      <button id="btn-new-session" class="btn btn-primary">回到首页</button>
+      <button id="btn-new-session" class="btn btn-primary">Back to Home</button>
     </div>
   </div>
 

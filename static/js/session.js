@@ -12,7 +12,7 @@ export function renderParticipants(containerId, participants, currentTurnId) {
     const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
     div.innerHTML = `
       <div class="avatar" style="background:${color}">${(p.nickname || '?')[0]}</div>
-      <span>${p.nickname}${p.is_host ? ' (房主)' : ''}</span>
+      <span>${p.nickname}${p.is_host ? ' (Host)' : ''}</span>
       <span class="speak-badge">${p.speak_count || 0}</span>
     `;
     el.appendChild(div);
@@ -33,7 +33,7 @@ export function renderGroups(groups, participants, myId) {
       const p = participants[pid];
       return p ? p.nickname : pid;
     });
-    div.textContent = `组${i+1}: ${names.join(' + ')}`;
+    div.textContent = `Group ${i+1}: ${names.join(' + ')}`;
     list.appendChild(div);
   });
 
@@ -85,13 +85,13 @@ export function addOutputCard(senderName, data) {
   card.className = 'output-card';
 
   let fields = '';
-  if (data.time) fields += `<div class="output-field">时间: ${escapeHtml(data.time)}</div>`;
-  if (data.place) fields += `<div class="output-field">地点: ${escapeHtml(data.place)}</div>`;
-  if (data.budget) fields += `<div class="output-field">预算: ${escapeHtml(data.budget)}</div>`;
-  if (data.companion) fields += `<div class="output-field">同伴: ${escapeHtml(data.companion)}</div>`;
-  if (data.invite) fields += `<div class="output-field">邀请: ${escapeHtml(data.invite)}</div>`;
-  if (data.request) fields += `<div class="output-field">请求: ${escapeHtml(data.request)}</div>`;
-  if (data.response) fields += `<div class="output-field">回应: ${escapeHtml(data.response)}</div>`;
+  if (data.time) fields += `<div class="output-field">Time: ${escapeHtml(data.time)}</div>`;
+  if (data.place) fields += `<div class="output-field">Location: ${escapeHtml(data.place)}</div>`;
+  if (data.budget) fields += `<div class="output-field">Budget: ${escapeHtml(data.budget)}</div>`;
+  if (data.companion) fields += `<div class="output-field">Companion: ${escapeHtml(data.companion)}</div>`;
+  if (data.invite) fields += `<div class="output-field">Invitation: ${escapeHtml(data.invite)}</div>`;
+  if (data.request) fields += `<div class="output-field">Request: ${escapeHtml(data.request)}</div>`;
+  if (data.response) fields += `<div class="output-field">Response: ${escapeHtml(data.response)}</div>`;
 
   card.innerHTML = `<div class="output-name">${escapeHtml(senderName)}</div>${fields}`;
   wall.appendChild(card);
@@ -105,7 +105,7 @@ export function renderCommitments(commitments) {
   commitments.forEach(c => {
     const card = document.createElement('div');
     card.className = 'commitment-card';
-    card.textContent = `${c.members.join(' + ')} — 一起执行 ${c.plan_owner} 的计划`;
+    card.textContent = `${c.members.join(' + ')} — executing ${c.plan_owner}'s plan together`;
     list.appendChild(card);
   });
 

@@ -63,11 +63,11 @@ export function showVoteCards(outputs, participants, myId) {
     card.dataset.pid = pid;
     card.innerHTML = `
       <div class="output-name">${p ? p.nickname : pid}</div>
-      <div class="output-field">时间: ${data.time || '-'}</div>
-      <div class="output-field">地点: ${data.place || '-'}</div>
-      <div class="output-field">预算: ${data.budget || '-'}</div>
-      <div class="output-field">同伴: ${data.companion || '-'}</div>
-      <div class="output-field">邀请: ${data.invite || '-'}</div>
+      <div class="output-field">Time: ${data.time || '-'}</div>
+      <div class="output-field">Location: ${data.place || '-'}</div>
+      <div class="output-field">Budget: ${data.budget || '-'}</div>
+      <div class="output-field">Companion: ${data.companion || '-'}</div>
+      <div class="output-field">Invitation: ${data.invite || '-'}</div>
     `;
     card.addEventListener('click', () => {
       container.querySelectorAll('.vote-card').forEach(c => c.classList.remove('voted'));

@@ -35,18 +35,18 @@ class OutputType(str, Enum):
 
 
 STAGE_NAMES = {
-    Stage.WAITING: "等待加入",
-    Stage.ONBOARDING: "S0 快速了解",
-    Stage.S1_CHECKIN: "S1 签到",
-    Stage.S2_MICRO: "S2 微任务：被理解",
-    Stage.S3_MAIN: "S3 主任务：微冒险计划",
-    Stage.S3_MAIN_FILL: "S3 主任务：填写计划",
-    Stage.S3_MAIN_REVIEW: "S3 主任务：互审改稿",
-    Stage.S4_HELP: "S4 互助请求",
-    Stage.S4_HELP_RESPOND: "S4 互助回应",
-    Stage.S5_COMMIT: "S5 承诺落地",
-    Stage.S6_CLOSING: "S6 收尾反馈",
-    Stage.ENDED: "已结束",
+    Stage.WAITING: "Waiting to Join",
+    Stage.ONBOARDING: "S0 Quick Intro",
+    Stage.S1_CHECKIN: "S1 Check-in",
+    Stage.S2_MICRO: "S2 Micro Task: Being Understood",
+    Stage.S3_MAIN: "S3 Main Task: Micro Adventure Plan",
+    Stage.S3_MAIN_FILL: "S3 Main Task: Fill in Plan",
+    Stage.S3_MAIN_REVIEW: "S3 Main Task: Peer Review",
+    Stage.S4_HELP: "S4 Mutual Help Request",
+    Stage.S4_HELP_RESPOND: "S4 Mutual Help Response",
+    Stage.S5_COMMIT: "S5 Commitment Landing",
+    Stage.S6_CLOSING: "S6 Closing Feedback",
+    Stage.ENDED: "Ended",
 }
 
 STAGE_DURATIONS = {
@@ -140,7 +140,7 @@ class Session:
         self.last_user_message_at: float = 0
         self.last_ai_speak_at: float = 0
         self.sub_stage_data: dict = {}
-        self.selected_cards: dict[str, str] = {}  # AI选择的任务卡 {"opening": "CARD_XX", ...}
+        self.selected_cards: dict[str, str] = {}  # AI selected task cards {"opening": "CARD_XX", ...}
 
     def add_participant(self, pid: str, nickname: str) -> Participant:
         is_host = len(self.participants) == 0
